@@ -52,8 +52,8 @@ function getTodayDateTime() {
 
 function getWaterLevel(id, date, time) {
   // url : https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=23&start_date=2021-09-27&end_date=2021-09-27%2001:00
-
-  const waterLevelUrl = `http://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=${id}&start_date=${date}&end_date=${date}%20${time}`;
+  // url : http://api2.thaiwater.net:9200/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=23&start_date=2021-09-27&end_date=2021-09-27%2001:00
+  const waterLevelUrl = `http://api2.thaiwater.net:9200/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=${id}&start_date=${date}&end_date=${date}%20${time}`;
 
   const response = UrlFetchApp.fetch(waterLevelUrl);
 
