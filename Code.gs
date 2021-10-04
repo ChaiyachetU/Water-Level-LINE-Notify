@@ -25,7 +25,7 @@ function main() {
   // create message for line notify
   let message = "\n\n⚠️ แจ้งเตือนระดับน้ำ 🌊" + "\n\nสถานี : คลองอ้อมนนท์บางใหญ่(ถนนบางกรวย-ไทรน้อย)" + "\n\nวันที่/เวลา : " + datetime + "\n\nระดับน้ำ : " + waterlevel + " (ระดับตลิ่ง 1.85)";
 
-  const lastWaterLevel = getLastWaterLevel({ id: ssID });
+  const lastWaterLevel = getLastWaterLevel(ssID);
 
   // Logger.log(lastWaterLevel)
 
@@ -104,7 +104,7 @@ function setDataSheet({ id, datetime, waterlevel }) {
   sheet.getRange(`C${lastRow + 1}`).setFormula(`=B${lastRow + 1} - B${lastRow}`);
 }
 
-function getLastWaterLevel({ id }) {
+function getLastWaterLevel(id) {
   const ss = SpreadsheetApp.openById(id);
   const sheet = ss.getSheetByName("data");
 
