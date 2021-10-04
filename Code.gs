@@ -18,6 +18,9 @@ function main() {
 
   // set data to sheet
   setDataSheet(ssID, datetime, waterlevel);
+  
+  // get chart
+  const chart = getChart(ssID, datetime);
 
   // create message for line notify
   let message = "\n\n⚠️ แจ้งเตือนระดับน้ำ 🌊" + "\n\nสถานี : คลองอ้อมนนท์บางใหญ่(ถนนบางกรวย-ไทรน้อย)" + "\n\nวันที่/เวลา : " + datetime + "\n\nระดับน้ำ : " + waterlevel + " (ระดับตลิ่ง 1.85)";
@@ -33,9 +36,15 @@ function main() {
   } else {
     message += "\n\nเปลี่ยนแปลง : คงที่";
   }
+  
+  // message and chart image for send to line notify
+  const messages = {
+    message: message,
+    imageFile: chart
+  }
 
   // send to LINE Notify
-  sendLineNotify(message, notifyToken);
+  sendLineNotify(messages, notifyToken);
 }
 
 function getTodayDateTime() {
@@ -106,15 +115,13 @@ function getLastWaterLevel(id) {
   return lastWaterLevel;
 }
 
-function sendLineNotify(message, accessToken) {
+function sendLineNotify(messages, accessToken) {
   const lineNotifyEndPoint = "https://notify-api.line.me/api/notify";
 
   const options = {
     "headers": { "Authorization": "Bearer " + accessToken },
     "method": 'post',
-    "payload": {
-      "message": message,
-    },
+    "payload": messages,
   };
 
   try {
@@ -123,4 +130,12 @@ function sendLineNotify(message, accessToken) {
     Logger.log(error.name + "：" + error.message);
     return;
   }
+}
+
+function getChart(id, name) {
+  const ss = SpreadsheetApp.openById(id);
+  const sheet = ss.getSheetByName("data");
+  const chart = sheet.getCharts()[0].getBlob().setName(name).getAs("image/png");
+
+  return chart;
 }
