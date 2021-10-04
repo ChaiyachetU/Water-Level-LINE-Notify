@@ -12,20 +12,20 @@ function main() {
   const { date, time } = getTodayDateTime();
 
   // get water level
-  const { datetime, waterlevel } = getWaterLevel(stationID, date, time);
+  const { datetime, waterlevel } = getWaterLevel({ id: stationID, date: date, time: time });
 
   Logger.log(`${datetime} : ${waterlevel}`);
 
   // set data to sheet
-  setDataSheet(ssID, datetime, waterlevel);
+  setDataSheet({ id: ssID, datetime: datetime, waterlevel: waterlevel });
   
   // get chart
-  const chart = getChart(ssID, datetime);
+  const chart = getChart({ id: ssID, name: datetime });
 
   // create message for line notify
   let message = "\n\n⚠️ แจ้งเตือนระดับน้ำ 🌊" + "\n\nสถานี : คลองอ้อมนนท์บางใหญ่(ถนนบางกรวย-ไทรน้อย)" + "\n\nวันที่/เวลา : " + datetime + "\n\nระดับน้ำ : " + waterlevel + " (ระดับตลิ่ง 1.85)";
 
-  const lastWaterLevel = getLastWaterLevel(ssID);
+  const lastWaterLevel = getLastWaterLevel({ id: ssID });
 
   // Logger.log(lastWaterLevel)
 
@@ -44,7 +44,7 @@ function main() {
   }
 
   // send to LINE Notify
-  sendLineNotify(messages, notifyToken);
+  sendLineNotify({ message: messages, accessToken: notifyToken });
 }
 
 function getTodayDateTime() {
@@ -59,7 +59,7 @@ function getTodayDateTime() {
   return { date, time };
 }
 
-function getWaterLevel(id, date, time) {
+function getWaterLevel({ id, date, time }) {
   // url : https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=23&start_date=2021-09-27&end_date=2021-09-27%2001:00
   // url : http://api2.thaiwater.net:9200/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=23&start_date=2021-09-27&end_date=2021-09-27%2001:00
   const waterLevelUrl = `http://api2.thaiwater.net:9200/api/v1/thaiwater30/public/waterlevel_graph?station_type=tele_waterlevel&station_id=${id}&start_date=${date}&end_date=${date}%20${time}`;
@@ -88,7 +88,7 @@ function getWaterLevel(id, date, time) {
   }
 }
 
-function setDataSheet(id, datetime, waterlevel) {
+function setDataSheet({ id, datetime, waterlevel }) {
   const ss = SpreadsheetApp.openById(id);
   const sheet = ss.getSheetByName("data");
 
@@ -104,7 +104,7 @@ function setDataSheet(id, datetime, waterlevel) {
   sheet.getRange(`C${lastRow + 1}`).setFormula(`=B${lastRow + 1} - B${lastRow}`);
 }
 
-function getLastWaterLevel(id) {
+function getLastWaterLevel({ id }) {
   const ss = SpreadsheetApp.openById(id);
   const sheet = ss.getSheetByName("data");
 
@@ -115,13 +115,13 @@ function getLastWaterLevel(id) {
   return lastWaterLevel;
 }
 
-function sendLineNotify(messages, accessToken) {
+function sendLineNotify({ message, accessToken }) {
   const lineNotifyEndPoint = "https://notify-api.line.me/api/notify";
 
   const options = {
     "headers": { "Authorization": "Bearer " + accessToken },
     "method": 'post',
-    "payload": messages,
+    "payload": message,
   };
 
   try {
@@ -132,7 +132,7 @@ function sendLineNotify(messages, accessToken) {
   }
 }
 
-function getChart(id, name) {
+function getChart({ id, name }) {
   const ss = SpreadsheetApp.openById(id);
   const sheet = ss.getSheetByName("data");
   const chart = sheet.getCharts()[0].getBlob().setName(name).getAs("image/png");
